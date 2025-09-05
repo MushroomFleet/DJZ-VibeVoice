@@ -1,0 +1,368 @@
+.audioCard {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.audioCard:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.audioCard.selected {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+  background: var(--bg-primary);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.selectCheckbox {
+  display: flex;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
+.fileInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.voiceName {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filename {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: monospace;
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actionButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.audioControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.playButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.progressContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.timeDisplay {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  font-family: monospace;
+  min-width: 35px;
+}
+
+.progressBar {
+  flex: 1;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.progressBar:hover {
+  background: var(--text-muted);
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 3px;
+  transition: width 0.1s ease;
+  position: relative;
+}
+
+.progressFill::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.progressBar:hover .progressFill::after {
+  opacity: 1;
+}
+
+.volumeControl {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.volumeControl i {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.volumeSlider {
+  width: 60px;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.volumeSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.volumeSlider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+
+.textPreview {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  border-left: 3px solid var(--primary-color);
+}
+
+.textPreview p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.textPreview i {
+  color: var(--primary-color);
+  margin-right: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.metadataItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.metadataItem i {
+  color: var(--text-muted);
+  width: 12px;
+  text-align: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .audioCard {
+    padding: 1rem;
+  }
+
+  .cardHeader {
+    gap: 0.75rem;
+  }
+
+  .voiceName {
+    font-size: 1rem;
+  }
+
+  .audioControls {
+    gap: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .progressContainer {
+    gap: 0.5rem;
+  }
+
+  .volumeControl {
+    display: none; /* Hide volume control on mobile */
+  }
+
+  .metadata {
+    gap: 0.75rem;
+    flex-direction: column;
+  }
+
+  .metadataItem {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .audioCard {
+    padding: 0.75rem;
+  }
+
+  .cardActions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .actionButton {
+    width: 28px;
+    height: 28px;
+  }
+
+  .audioControls {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  .progressContainer {
+    order: 2;
+  }
+
+  .playButton {
+    order: 1;
+    align-self: center;
+    width: 36px;
+    height: 36px;
+  }
+
+  .textPreview {
+    padding: 0.5rem;
+  }
+
+  .textPreview p {
+    font-size: 0.85rem;
+    -webkit-line-clamp: 2;
+  }
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .audioCard {
+  background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .audioCard.selected {
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .progressBar {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .volumeSlider {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Animation for loading states */
+.audioCard.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.audioCard.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(var(--primary-color-rgb), 0.1);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}

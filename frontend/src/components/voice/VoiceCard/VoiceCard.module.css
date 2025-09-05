@@ -1,0 +1,184 @@
+.voiceCard {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.voiceCard:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+}
+
+.voiceCard.selected {
+  border-color: var(--accent-primary);
+  background: linear-gradient(135deg, 
+    rgba(102, 126, 234, 0.1), 
+    rgba(118, 75, 162, 0.1)
+  );
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.selectedIndicator {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  color: var(--success);
+  font-size: 1.25rem;
+  z-index: 2;
+}
+
+.typeBadge {
+  position: absolute;
+  top: var(--spacing-sm);
+  left: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  z-index: 2;
+}
+
+.typeBadge i {
+  font-size: 0.75rem;
+}
+
+.voiceInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: var(--spacing-xl) 0 var(--spacing-lg) 0;
+}
+
+.voiceIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.voiceDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.voiceName {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 var(--spacing-xs) 0;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metadata {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.metaItem i {
+  font-size: 0.75rem;
+  width: 12px;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.selectBtn {
+  flex: 1;
+}
+
+.actions button:last-child {
+  flex-shrink: 0;
+}
+
+/* Hover effects */
+.voiceCard:not(.selected):hover .voiceIcon {
+  transform: scale(1.05);
+}
+
+.selected .voiceIcon {
+  background: linear-gradient(135deg, var(--success), #059669);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .voiceCard {
+    padding: var(--spacing-md);
+  }
+  
+  .voiceInfo {
+    margin: var(--spacing-lg) 0 var(--spacing-md) 0;
+  }
+  
+  .voiceIcon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+  
+  .voiceName {
+    font-size: 1rem;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .selectBtn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .metadata {
+    gap: var(--spacing-xs);
+  }
+  
+  .metaItem {
+    font-size: 0.8rem;
+  }
+  
+  .typeBadge {
+    position: static;
+    align-self: flex-start;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .selectedIndicator {
+    position: static;
+    align-self: flex-end;
+    margin-top: calc(-1 * var(--spacing-lg));
+  }
+}

@@ -1,0 +1,141 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.button:hover:not(.disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.button:active:not(.disabled) {
+  transform: translateY(0);
+}
+
+.button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+/* Variants */
+.primary {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+  border: 1px solid transparent;
+}
+
+.primary:hover:not(.disabled) {
+  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+}
+
+.secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.secondary:hover:not(.disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-primary);
+}
+
+.success {
+  background: var(--success);
+  color: white;
+  border: 1px solid transparent;
+}
+
+.success:hover:not(.disabled) {
+  background: #059669;
+}
+
+.danger {
+  background: var(--error);
+  color: white;
+  border: 1px solid transparent;
+}
+
+.danger:hover:not(.disabled) {
+  background: #dc2626;
+}
+
+.warning {
+  background: var(--warning);
+  color: white;
+  border: 1px solid transparent;
+}
+
+.warning:hover:not(.disabled) {
+  background: #d97706;
+}
+
+.info {
+  background: var(--info);
+  color: white;
+  border: 1px solid transparent;
+}
+
+.info:hover:not(.disabled) {
+  background: #2563eb;
+}
+
+/* Sizes */
+.small {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.875rem;
+  gap: var(--spacing-xs);
+}
+
+.medium {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: 1rem;
+  gap: var(--spacing-sm);
+}
+
+.large {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: 1.125rem;
+  gap: var(--spacing-sm);
+}
+
+/* Disabled State */
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Icon button variant */
+.iconOnly {
+  padding: var(--spacing-sm);
+  width: auto;
+  aspect-ratio: 1;
+  justify-content: center;
+}
+
+.iconOnly.small {
+  padding: var(--spacing-xs);
+}
+
+.iconOnly.large {
+  padding: var(--spacing-md);
+}

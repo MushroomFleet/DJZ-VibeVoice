@@ -1,0 +1,140 @@
+.uploader {
+  padding: var(--spacing-lg);
+}
+
+.nameSection {
+  margin-bottom: var(--spacing-lg);
+}
+
+.label {
+  display: block;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.nameInput {
+  width: 100%;
+  max-width: 400px;
+}
+
+.dropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  background: var(--bg-tertiary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.dropzone:hover {
+  border-color: var(--accent-primary);
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.dragActive {
+  border-color: var(--accent-primary);
+  background: rgba(102, 126, 234, 0.1);
+  transform: scale(1.02);
+}
+
+.dragReject {
+  border-color: var(--error);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.hasFile {
+  border-color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.dropzoneContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.uploadIcon {
+  font-size: 3rem;
+  color: var(--accent-primary);
+}
+
+.uploadText p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.uploadSubtext {
+  color: var(--text-secondary) !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+}
+
+.supportedFormats {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: var(--spacing-sm);
+}
+
+.fileSelected {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.fileIcon {
+  font-size: 2rem;
+  color: var(--success);
+}
+
+.fileInfo {
+  flex: 1;
+  text-align: left;
+}
+
+.fileName {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.fileSize {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.clearBtn {
+  flex-shrink: 0;
+}
+
+.uploadBtn {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .uploader {
+    padding: var(--spacing-md);
+  }
+  
+  .fileSelected {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .fileInfo {
+    text-align: center;
+  }
+}
