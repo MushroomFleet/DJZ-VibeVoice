@@ -6,9 +6,11 @@ pydantic
 pydantic-settings
 python-dotenv
 torch
-transformers
+transformers>=4.30.0
 soundfile
 librosa
 numpy
 scipy
 gradio-client
+accelerate
+optimum

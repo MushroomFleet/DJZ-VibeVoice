@@ -8,6 +8,11 @@ from .voice_model import (
     VoiceType,
     AudioFile,
     AudioLibraryResponse,
+    # Multi-Speaker Models
+    MultiSpeakerGenerationRequest,
+    MultiSpeakerGenerationResponse,
+    SpeakerAssignmentRequest,
+    SpeakerAssignmentResponse,
 )
 
 __all__ = [
@@ -18,4 +23,9 @@ __all__ = [
     "VoiceType",
     "AudioFile",
     "AudioLibraryResponse",
+    # Multi-Speaker Models
+    "MultiSpeakerGenerationRequest",
+    "MultiSpeakerGenerationResponse",
+    "SpeakerAssignmentRequest",
+    "SpeakerAssignmentResponse",
 ]

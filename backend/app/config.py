@@ -18,9 +18,19 @@ class Settings(BaseSettings):
 
     # Model settings - Use Hugging Face model for weights, local package for code
     MODEL_PATH: str = "microsoft/VibeVoice-1.5B"
-    DEVICE: str = "cuda"
+    DEVICE: str = "auto"  # auto-detect best device
     MAX_LENGTH: int = 1000
     CFG_SCALE: float = 1.3
+
+    # CUDA-specific settings
+    CUDA_MEMORY_FRACTION: float = 0.8  # Use 80% of GPU memory
+    ENABLE_MIXED_PRECISION: bool = True
+    ENABLE_FLASH_ATTENTION: bool = True
+    ENABLE_MODEL_COMPILATION: bool = True  # PyTorch 2.0+ compile
+
+    # Performance settings
+    BATCH_SIZE: int = 1  # Adjust based on GPU memory
+    MAX_CONCURRENT_GENERATIONS: int = 2  # Limit concurrent requests
 
     # Path settings - Updated for monorepo structure
     BACKEND_DIR: Path = Path(__file__).parent.parent
