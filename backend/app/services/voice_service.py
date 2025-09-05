@@ -307,3 +307,10 @@ class VoiceService:
     def is_model_loaded(self) -> bool:
         """Return True if model is loaded."""
         return self.model_loaded
+
+    def load_model_if_needed(self):
+        """Load the model if it hasn't been loaded yet."""
+        if not self.model_loaded:
+            logger.info("Loading model on demand...")
+            self._initialize_model()
+        return self.model_loaded
