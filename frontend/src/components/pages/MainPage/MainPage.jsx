@@ -18,6 +18,8 @@ const MainPage = () => {
     loading 
   } = state;
 
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const handleGenerate = async () => {
     if (!selectedVoiceId) {
       toast.error('Please select a voice');
@@ -29,10 +31,16 @@ const MainPage = () => {
       return;
     }
 
+    if (isGenerating) {
+      toast.error('Generation already in progress. Please wait...');
+      return;
+    }
+
     try {
+      setIsGenerating(true);
       dispatch({ 
         type: 'SET_LOADING', 
-        payload: { loading: true, text: 'Generating speech...' } 
+        payload: { loading: true, text: 'Generating speech... This may take 1-2 minutes on CPU.' } 
       });
 
       const result = await voiceService.generateSpeech({
@@ -50,8 +58,9 @@ const MainPage = () => {
       }
     } catch (error) {
       console.error('Generation error:', error);
-      toast.error('Generation error');
+      toast.error(error.message || 'Generation error');
     } finally {
+      setIsGenerating(false);
       dispatch({ type: 'SET_LOADING', payload: { loading: false } });
     }
   };
@@ -83,11 +92,11 @@ const MainPage = () => {
           onClick={handleGenerate}
           variant="primary"
           size="large"
-          disabled={loading || !selectedVoiceId || !textInput.trim()}
+          disabled={loading || isGenerating || !selectedVoiceId || !textInput.trim()}
           className={styles.generateButton}
         >
-          <i className="fas fa-magic" />
-          Generate Speech
+          <i className={isGenerating ? "fas fa-spinner fa-spin" : "fas fa-magic"} />
+          {isGenerating ? 'Generating...' : 'Generate Speech'}
         </Button>
       </section>
 

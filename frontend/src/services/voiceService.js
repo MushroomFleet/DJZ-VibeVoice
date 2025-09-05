@@ -1,62 +1,140 @@
 import { api } from './api';
 
 class VoiceService {
+  constructor() {
+    this.backendReady = false;
+    this.checkingBackend = false;
+  }
+
+  async waitForBackend(maxRetries = 10, delayMs = 1000) {
+    if (this.backendReady) return true;
+    if (this.checkingBackend) {
+      // Wait for ongoing check
+      while (this.checkingBackend) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      return this.backendReady;
+    }
+
+    this.checkingBackend = true;
+    
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        await api.get('/health', { timeout: 2000 });
+        this.backendReady = true;
+        this.checkingBackend = false;
+        return true;
+      } catch (error) {
+        console.log(`Backend not ready, attempt ${i + 1}/${maxRetries}...`);
+        if (i < maxRetries - 1) {
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+      }
+    }
+    
+    this.checkingBackend = false;
+    return false;
+  }
+
+  async withRetry(operation, retries = 3) {
+    // First ensure backend is ready
+    const backendReady = await this.waitForBackend();
+    if (!backendReady) {
+      throw new Error('Backend is not ready. Please wait a moment and try again.');
+    }
+
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await operation();
+      } catch (error) {
+        console.log(`Operation failed, attempt ${i + 1}/${retries}:`, error.message);
+        
+        // If it's a connection error and not the last retry, wait and try again
+        if (error.code === 'ECONNABORTED' || error.message.includes('Network Error') || error.response?.status >= 500) {
+          if (i < retries - 1) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+            continue;
+          }
+        }
+        throw error;
+      }
+    }
+  }
+
   async getVoices(searchQuery = '') {
-    const params = searchQuery ? { search: searchQuery } : {};
-    const response = await api.get('/voices', { params });
-    return response.data;
+    return this.withRetry(async () => {
+      const params = searchQuery ? { search: searchQuery } : {};
+      const response = await api.get('/voices', { params });
+      return response.data;
+    });
   }
 
   async uploadVoice(file, name) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('name', name);
+    return this.withRetry(async () => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('name', name);
 
-    const response = await api.post('/voices/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      const response = await api.post('/voices/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
     });
-    return response.data;
   }
 
   async saveRecording(name, blob) {
-    // Convert blob to base64
-    const base64Data = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result.split(',')[1];
-        resolve(base64);
-      };
-      reader.readAsDataURL(blob);
-    });
+    return this.withRetry(async () => {
+      // Convert blob to base64
+      const base64Data = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result.split(',')[1];
+          resolve(base64);
+        };
+        reader.readAsDataURL(blob);
+      });
 
-    const response = await api.post('/voices/record', {
-      name,
-      audio_data: base64Data,
-      format: 'webm'
+      const response = await api.post('/voices/record', {
+        name,
+        audio_data: base64Data,
+        format: 'webm'
+      });
+      return response.data;
     });
-    return response.data;
   }
 
   async deleteVoice(voiceId) {
-    const response = await api.delete(`/voices/${voiceId}`);
-    return response.data;
+    return this.withRetry(async () => {
+      const response = await api.delete(`/voices/${voiceId}`);
+      return response.data;
+    });
   }
 
   async generateSpeech(request) {
-    const response = await api.post('/generate', request);
+    // Don't use retry logic for speech generation as it can take a long time
+    const backendReady = await this.waitForBackend();
+    if (!backendReady) {
+      throw new Error('Backend is not ready. Please wait a moment and try again.');
+    }
+    
+    const response = await api.post('/generate', request, {
+      timeout: 120000, // 2 minutes timeout for CPU generation
+    });
     return response.data;
   }
 
   async generateFromFile(file, voiceId, cfgScale = 1.3) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('voice_id', voiceId);
-    formData.append('cfg_scale', cfgScale);
+    return this.withRetry(async () => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('voice_id', voiceId);
+      formData.append('cfg_scale', cfgScale);
 
-    const response = await api.post('/generate/file', formData);
-    return response.data;
+      const response = await api.post('/generate/file', formData);
+      return response.data;
+    });
   }
 
   async healthCheck() {
