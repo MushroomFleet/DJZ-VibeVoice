@@ -1,0 +1,26 @@
+# Core dependencies
+fastapi
+uvicorn[standard]
+python-multipart
+aiofiles
+pydantic
+pydantic-settings
+python-dotenv
+
+# CUDA-enabled PyTorch (install separately with pip)
+# torch>=2.0.0+cu118
+# torchvision>=0.15.0+cu118  
+# torchaudio>=2.0.0+cu118
+
+# ML/Audio dependencies
+transformers>=4.30.0
+soundfile
+librosa
+numpy
+scipy
+gradio-client
+
+# CUDA-specific optimizations
+accelerate
+optimum
+flash-attn>=2.0.0  # Optional: for flash attention support
