@@ -34,32 +34,120 @@ This project is currently **aimed at developers** but will include **end-user fr
 - 💾 **Download & Save**: Export generated audio files  
 - 🗂️ **File Management**: Bulk operations for audio library organization
 
+## 🚀 Installation & Setup
+
+### Prerequisites
+- **Node.js** 18+ (for frontend)
+- **Python** 3.9+ (for backend) 
+- **Git** (for cloning repositories)
+- **8GB+ RAM** (16GB recommended for faster generation)
+- **CUDA-capable GPU** (optional but recommended for faster generation)
+
+⚠️ **Performance Note**: Without GPU acceleration, speech generation will run on CPU and take 1-2 minutes per generation. GPU acceleration reduces this to 10-20 seconds.
+
+### Step-by-Step Installation
+
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/MushroomFleet/DJZ-VibeVoice.git
+cd DJZ-VibeVoice
+```
+
+#### 2. Install Node.js Dependencies
+```bash
+npm install
+cd frontend
+npm install
+cd ..
+```
+
+#### 3. Set Up Python Backend Environment
+```bash
+cd backend
+python -m venv venv
+
+# Activate virtual environment:
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
+pip install -r requirements.txt
+cd ..
+```
+
+#### 4. Install VibeVoice Model
+```bash
+cd models/VibeVoice
+pip install -e .
+cd ../..
+```
+
+#### 5. Configure Backend Environment
+```bash
+cd backend
+cp env.example .env
+```
+
+Edit `backend/.env` if needed (default settings work for most setups):
+```env
+# Application Settings
+APP_NAME=DJZ-VibeVoice
+APP_VERSION=1.0.0
+DEBUG=False
+
+# Server Settings
+HOST=127.0.0.1
+PORT=8001
+
+# Model Settings
+MODEL_PATH=microsoft/VibeVoice-1.5B
+DEVICE=cpu  # Change to "cuda" if you have NVIDIA GPU
+CFG_SCALE=1.0
+
+# Audio Settings
+SAMPLE_RATE=24000
+MAX_AUDIO_SIZE_MB=50
+
+# Performance Settings
+LOAD_MODEL_ON_STARTUP=False
+TOKENIZERS_PARALLELISM=false
+```
+
+#### 6. Start the Application
+```bash
+npm run dev
+```
+
+The application will start both frontend and backend. You should see:
+- Frontend available at: http://localhost:5173
+- Backend API at: http://localhost:8001
+
+**Note**: The backend will take 30-60 seconds to fully load the AI model on first startup.
+
 ## 🎯 How to Use
 
 ### Quick Usage Guide
 
-1. **Start the Application**
-   ```bash
-   npm run dev
-   ```
-   Access at: http://localhost:5173
+1. **Access the Application**
+   - Open your browser to http://localhost:5173
+   - Wait for the backend to finish loading (check console for "Model loaded successfully")
 
-2. **Create a Voice Profile**
-   - Click the microphone icon to record your voice (10-30 seconds)
-   - Or upload an audio file with clear speech
-   - Save with a descriptive name
+2. **Create Your First Voice Profile**
+   - Click the microphone icon to record 10-30 seconds of clear speech
+   - Or use the upload button to select an audio file (.wav, .mp3, .m4a, .flac, .ogg)
+   - Give your voice a descriptive name and save
 
 3. **Generate Speech**
-   - Select your voice from the dropdown
-   - Enter text in the input field
-   - Adjust settings (speakers, CFG scale) if needed
-   - Click "Generate Speech"
+   - Select your voice from the dropdown menu
+   - Enter text in the text input area
+   - Click "Generate Speech" 
+   - Wait 1-2 minutes for CPU generation (10-20 seconds with GPU)
 
 4. **Manage Your Audio**
-   - Click the folder icon to open Audio Gallery
-   - Browse all generated speech files
-   - Play, download, or delete audio files
-   - Use search to find specific recordings
+   - Generated audio appears in the "Generated Audio" section
+   - Click the folder icon to browse your Audio Gallery
+   - Play, download, or delete audio files as needed
 
 ### Advanced Features
 
@@ -81,85 +169,20 @@ Speaker 1: Let's dive into today's topic.
 - Speak naturally with varied intonation
 - Save multiple voice variants for different use cases
 
-## 🚀 Installation & Setup
-
-### Prerequisites
-- **Node.js** 18+ (for frontend)
-- **Python** 3.9+ (for backend) 
-- **CUDA-capable GPU** (recommended for faster generation)
-- **8GB+ RAM** (16GB recommended)
-
-### Installation Steps
-
-1. **Clone the repository**
-```bash
-git clone <your-repository-url>
-cd djz-vibevoice
-```
-
-2. **Install all dependencies**
-```bash
-npm run install:all
-```
-
-3. **Set up Python environment**
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-cd ..
-```
-
-4. **Install VibeVoice model**
-```bash
-cd models/VibeVoice
-pip install -e .
-cd ../..
-```
-
-5. **Configure environment**
-```bash
-cd backend
-cp .env.example .env
-# Edit .env with your settings
-cd ..
-```
-
-### Running the Application
-
-**Option 1: Run both frontend and backend together**
-```bash
-npm run dev
-```
-
-**Option 2: Run separately**
-```bash
-# Terminal 1 - Backend (FastAPI server on port 8001)
-npm run dev:backend
-
-# Terminal 2 - Frontend (React dev server on port 5173)
-npm run dev:frontend
-```
-
-**Access the application**
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8001
-
 ## 🏗️ Architecture
 
 This is a **monorepo** containing:
 
 ```
-djz-vibevoice/
+DJZ-VibeVoice/
 ├── frontend/              # React application (Vite + modern stack)
 ├── backend/               # FastAPI server with VibeVoice integration
 ├── models/                # VibeVoice model files
-├── data/                  # Application data (not uploaded to GitHub)
+├── data/                  # Application data (auto-created)
 │   ├── voices/           # Stored voice profiles
 │   ├── outputs/          # Generated audio files (Audio Gallery)
 │   └── uploads/          # Temporary uploads
-└── shared/               # Common utilities and types
+└── package.json          # Root package management
 ```
 
 ### Frontend (React + Vite)
@@ -174,36 +197,6 @@ djz-vibevoice/
 - **Services**: Business logic and VibeVoice integration
 - **Models**: Data models and validation
 - **Configuration**: Environment-based settings
-
-## 🔧 Configuration
-
-### Backend Configuration
-
-Edit `backend/.env`:
-
-```env
-# Application Settings
-APP_NAME=DJZ-VibeVoice
-APP_VERSION=1.0.0
-DEBUG=False
-
-# Server Settings
-HOST=0.0.0.0
-PORT=8001
-
-# Model Settings
-MODEL_PATH=microsoft/VibeVoice-1.5B
-DEVICE=cuda
-CFG_SCALE=1.3
-
-# Audio Settings
-SAMPLE_RATE=24000
-MAX_AUDIO_SIZE_MB=50
-```
-
-### Frontend Configuration
-
-The frontend automatically proxies API requests to the backend. No additional configuration needed.
 
 ## 🛠️ Development
 
@@ -249,48 +242,97 @@ npm run clean             # Clean build artifacts
 - Node.js 18+, Python 3.9+
 - 8GB RAM, CPU with AVX support
 - 5GB disk space
+- **Expected Performance**: 1-2 minutes per speech generation
 
 **Recommended**
 - Node.js 20+, Python 3.10+
 - 16GB RAM, NVIDIA GPU (8GB+ VRAM)
 - 10GB disk space, SSD storage
+- **Expected Performance**: 10-20 seconds per speech generation
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-**Frontend won't start**
+**"concurrently is not recognized"**
 ```bash
-cd frontend && npm install
+npm install
+# Ensure you're in the root directory when running npm install
 ```
 
-**Backend connection errors**
+**Port 8001 already in use**
 ```bash
-cd backend && python main.py
-# Check if running on port 8001
+# Windows:
+netstat -ano | findstr :8001
+taskkill /f /pid <PID_NUMBER>
+
+# macOS/Linux:
+lsof -ti:8001 | xargs kill -9
 ```
 
-**Audio Gallery not loading**
-- Check backend is running
-- Verify `data/outputs/` directory exists
-- Check API endpoint `/api/audio/library`
+**Backend fails to start**
+```bash
+cd backend
+# Ensure virtual environment is activated
+venv\Scripts\activate  # Windows
+source venv/bin/activate  # macOS/Linux
+python main.py
+```
 
-**Out of memory errors**
-- Use a smaller model variant
-- Reduce batch size in generation
-- Close other applications
+**"Model not loaded" errors**
+- Wait 30-60 seconds for initial model loading
+- Check console for "Model loaded successfully" message
+- Ensure sufficient RAM (8GB minimum)
 
-**Slow generation**
-- Ensure GPU is enabled (`DEVICE=cuda`)
-- Use shorter text inputs
-- Check GPU memory usage
+**Slow generation (CPU)**
+- Normal behavior on CPU - expect 1-2 minutes
+- For faster generation, use NVIDIA GPU with CUDA
+- Change `DEVICE=cuda` in `backend/.env` if GPU available
+
+**Audio uploads fail**
+- Ensure backend is running on port 8001
+- Check file format (.wav, .mp3, .m4a, .flac, .ogg)
+- File size limit is 50MB (configurable in .env)
+
+**Frontend won't load**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+**Tokenizer warnings**
+```
+The tokenizer class you load from this checkpoint is 'Qwen2Tokenizer'.
+The class this function is called from is 'VibeVoiceTextTokenizerFast'.
+```
+- These warnings are normal and don't affect functionality
+- The application will still generate speech correctly
+
+### Performance Optimization
+
+**For CPU Users:**
+- Close unnecessary applications
+- Use shorter text inputs (under 100 words)
+- Consider using simpler configuration: `CFG_SCALE=1.0`
+
+**For GPU Users:**
+- Install CUDA toolkit if not already installed
+- Change `DEVICE=cuda` in `backend/.env`
+- Ensure GPU has 8GB+ VRAM for best performance
+
+**Memory Management:**
+- Restart application if generation becomes very slow
+- Monitor system RAM usage
+- Close browser tabs when not needed
 
 ### Getting Help
 
 1. Check the console for error messages
-2. Verify all dependencies are installed
+2. Verify all dependencies are installed correctly
 3. Ensure ports 5173 and 8001 are available
-4. Check GPU drivers are up to date
+4. Check that Python virtual environment is activated
+5. Confirm all installation steps were completed
 
 ## 🗺️ Roadmap
 
@@ -300,15 +342,17 @@ cd backend && python main.py
 - ✅ Voice recording and upload
 - ✅ Text-to-speech generation
 - ✅ Audio Gallery with file management
+- ✅ CPU and GPU support
 - ✅ Developer-focused setup
 
 ### Upcoming Features (v1.1+)
 - 🔄 One-click installer for end users
 - 🔄 Pre-built voice model downloads
 - 🔄 Audio waveform visualization
-- 🔄 Batch text processing
+- 🔄 Batch text processing improvements
 - 🔄 Voice quality metrics
 - 🔄 Export to multiple formats
+- 🔄 Performance optimizations
 
 ### Future Vision
 - 📋 Desktop application packaging
