@@ -6,46 +6,94 @@ A standalone AI-powered voice synthesis application built with React and FastAPI
 ![React](https://img.shields.io/badge/React-19+-blue?style=for-the-badge&logo=react)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Modern-green?style=for-the-badge&logo=fastapi)
 
+## 📖 About This Project
+
+**DJZ-VibeVoice** is a standalone monorepo evolution of voice synthesis technology, building upon the excellent work of the original projects:
+
+- **🧠 Core AI Model**: Based on [VibeVoice](https://github.com/mypapit/VibeVoice) - Microsoft's state-of-the-art voice synthesis model
+- **🔧 Original Implementation**: Forked from [vibevoice-studio](https://github.com/shamspias/vibevoice-studio) - Python/Gradio-based UI
+
+We've completely rebuilt the application as a **modern web-based monorepo** with:
+- **React frontend** with professional UI/UX design
+- **FastAPI backend** with optimized performance
+- **Audio Gallery** for managing generated speech files
+- **Modular architecture** for future development
+
+This project is currently **aimed at developers** but will include **end-user friendly options** in future releases.
+
 ## ✨ Features
 
 - 🎤 **Voice Training**: Upload audio files or record your voice directly  
 - 📝 **Text-to-Speech**: Convert text or text files to natural speech  
 - 🎭 **Multiple Speakers**: Support for up to 4 distinct speakers  
 - 💾 **Voice Library**: Save and manage custom voice profiles  
+- 🎵 **Audio Gallery**: Browse, play, and manage generated audio files with search and filter
 - 🎨 **Beautiful UI**: Modern, responsive React interface with dark/light themes  
 - ⚡ **Real-time Processing**: Fast speech generation with streaming support  
 - 📊 **Audio Visualization**: Live waveform display during recording  
 - 💾 **Download & Save**: Export generated audio files  
+- 🗂️ **File Management**: Bulk operations for audio library organization
 
-## 🏗️ Architecture
+## 🎯 How to Use
 
-This is a **monorepo** containing:
+### Quick Usage Guide
 
+1. **Start the Application**
+   ```bash
+   npm run dev
+   ```
+   Access at: http://localhost:5173
+
+2. **Create a Voice Profile**
+   - Click the microphone icon to record your voice (10-30 seconds)
+   - Or upload an audio file with clear speech
+   - Save with a descriptive name
+
+3. **Generate Speech**
+   - Select your voice from the dropdown
+   - Enter text in the input field
+   - Adjust settings (speakers, CFG scale) if needed
+   - Click "Generate Speech"
+
+4. **Manage Your Audio**
+   - Click the folder icon to open Audio Gallery
+   - Browse all generated speech files
+   - Play, download, or delete audio files
+   - Use search to find specific recordings
+
+### Advanced Features
+
+**Multi-Speaker Conversations**
+```text
+Speaker 1: Hello, welcome to our podcast!
+Speaker 2: Thanks, I'm excited to be here.
+Speaker 1: Let's dive into today's topic.
 ```
-djz-vibevoice/
-├── frontend/              # React application (Vite + modern stack)
-├── backend/               # FastAPI server with VibeVoice integration
-├── models/                # VibeVoice model files
-├── data/                  # Application data
-│   ├── voices/           # Stored voice profiles
-│   ├── outputs/          # Generated audio files
-│   └── uploads/          # Temporary uploads
-└── shared/               # Common utilities and types
-```
 
-## 🚀 Quick Start
+**Batch Text Processing**
+- Upload `.txt` files for longer content
+- Generate speech from entire documents
+- Automatically save to Audio Gallery
+
+**Voice Cloning Best Practices**
+- Use 10-30 seconds of clear, high-quality audio
+- Record in a quiet environment
+- Speak naturally with varied intonation
+- Save multiple voice variants for different use cases
+
+## 🚀 Installation & Setup
 
 ### Prerequisites
 - **Node.js** 18+ (for frontend)
 - **Python** 3.9+ (for backend) 
-- **CUDA-capable GPU** (recommended)
-- **8GB+ RAM**
+- **CUDA-capable GPU** (recommended for faster generation)
+- **8GB+ RAM** (16GB recommended)
 
-### Installation
+### Installation Steps
 
 1. **Clone the repository**
 ```bash
-git clone <repository-url>
+git clone <your-repository-url>
 cd djz-vibevoice
 ```
 
@@ -98,6 +146,35 @@ npm run dev:frontend
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8001
 
+## 🏗️ Architecture
+
+This is a **monorepo** containing:
+
+```
+djz-vibevoice/
+├── frontend/              # React application (Vite + modern stack)
+├── backend/               # FastAPI server with VibeVoice integration
+├── models/                # VibeVoice model files
+├── data/                  # Application data (not uploaded to GitHub)
+│   ├── voices/           # Stored voice profiles
+│   ├── outputs/          # Generated audio files (Audio Gallery)
+│   └── uploads/          # Temporary uploads
+└── shared/               # Common utilities and types
+```
+
+### Frontend (React + Vite)
+- **Components**: Modular React components with CSS modules
+- **Audio Gallery**: Full-featured audio file management
+- **Services**: API integration and data handling  
+- **Context**: Global state management
+- **Hooks**: Reusable React hooks for audio operations
+
+### Backend (FastAPI)
+- **API Routes**: RESTful endpoints for voice and audio operations
+- **Services**: Business logic and VibeVoice integration
+- **Models**: Data models and validation
+- **Configuration**: Environment-based settings
+
 ## 🔧 Configuration
 
 ### Backend Configuration
@@ -128,44 +205,6 @@ MAX_AUDIO_SIZE_MB=50
 
 The frontend automatically proxies API requests to the backend. No additional configuration needed.
 
-## 🎯 Usage Examples
-
-### Basic Text-to-Speech
-
-1. Start the application (`npm run dev`)
-2. Upload or record a voice sample
-3. Enter your text
-4. Click "Generate Speech"
-5. Play and download the result
-
-### Multi-Speaker Conversations
-
-```text
-Speaker 1: Hello, welcome to our podcast!
-Speaker 2: Thanks, I'm excited to be here.
-Speaker 1: Let's dive into today's topic.
-```
-
-### Voice Cloning
-
-1. Record 10-30 seconds of clear speech
-2. Save with a descriptive name
-3. Use the voice for any text generation
-
-## 📁 Project Structure
-
-### Frontend (React + Vite)
-- **Components**: Modular React components with CSS modules
-- **Services**: API integration and data handling  
-- **Context**: Global state management
-- **Hooks**: Reusable React hooks
-
-### Backend (FastAPI)
-- **API Routes**: RESTful endpoints for voice and audio operations
-- **Services**: Business logic and VibeVoice integration
-- **Models**: Data models and validation
-- **Configuration**: Environment-based settings
-
 ## 🛠️ Development
 
 ### Available Scripts
@@ -186,14 +225,23 @@ npm run clean             # Clean build artifacts
 
 ### API Endpoints
 
+**Voice Management**
 - `GET /api/voices` — List available voices
 - `POST /api/voices/upload` — Upload voice file
 - `POST /api/voices/record` — Save recorded voice
 - `DELETE /api/voices/{id}` — Delete voice
+
+**Speech Generation**
 - `POST /api/generate` — Generate speech from text
 - `POST /api/generate/file` — Generate from text file
+
+**Audio Gallery**
+- `GET /api/audio/library` — Get audio library with metadata
 - `GET /api/audio/{filename}` — Download audio file
 - `DELETE /api/audio/{filename}` — Delete audio file
+
+**System**
+- `GET /api/health` — Check system status
 
 ## 🚦 System Requirements
 
@@ -222,6 +270,11 @@ cd backend && python main.py
 # Check if running on port 8001
 ```
 
+**Audio Gallery not loading**
+- Check backend is running
+- Verify `data/outputs/` directory exists
+- Check API endpoint `/api/audio/library`
+
 **Out of memory errors**
 - Use a smaller model variant
 - Reduce batch size in generation
@@ -239,6 +292,31 @@ cd backend && python main.py
 3. Ensure ports 5173 and 8001 are available
 4. Check GPU drivers are up to date
 
+## 🗺️ Roadmap
+
+### Current State (v1.0)
+- ✅ Web-based UI with React frontend
+- ✅ FastAPI backend integration
+- ✅ Voice recording and upload
+- ✅ Text-to-speech generation
+- ✅ Audio Gallery with file management
+- ✅ Developer-focused setup
+
+### Upcoming Features (v1.1+)
+- 🔄 One-click installer for end users
+- 🔄 Pre-built voice model downloads
+- 🔄 Audio waveform visualization
+- 🔄 Batch text processing
+- 🔄 Voice quality metrics
+- 🔄 Export to multiple formats
+
+### Future Vision
+- 📋 Desktop application packaging
+- 📋 Cloud deployment options
+- 📋 API key integration for hosted models
+- 📋 Community voice sharing
+- 📋 Plugin system for extensions
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -253,17 +331,23 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ## 🙏 Acknowledgments
 
-- [Microsoft VibeVoice](https://github.com/microsoft/VibeVoice) for the core AI model
-- [FastAPI](https://fastapi.tiangolo.com) for the backend framework
-- [React](https://react.dev) and [Vite](https://vitejs.dev) for the frontend stack
+- **[VibeVoice Model](https://github.com/mypapit/VibeVoice)** - The core AI model powering voice synthesis
+- **[VibevoiceStudio](https://github.com/shamspias/vibevoice-studio)** - Original Python/Gradio implementation that inspired this project
+- **[Microsoft VibeVoice](https://github.com/microsoft/VibeVoice)** - Original research and model development
+- **[FastAPI](https://fastapi.tiangolo.com)** - High-performance backend framework
+- **[React](https://react.dev)** and **[Vite](https://vitejs.dev)** - Modern frontend development
 - All contributors and users of this project
 
 ## 🔗 Related Projects
 
-- [VibeVoice Model](https://github.com/microsoft/VibeVoice)
+- [VibeVoice Model](https://github.com/mypapit/VibeVoice) - Core AI model
+- [Original VibevoiceStudio](https://github.com/shamspias/vibevoice-studio) - Python/Gradio version
+- [Microsoft VibeVoice Research](https://github.com/microsoft/VibeVoice) - Original research
 - [FastAPI Documentation](https://fastapi.tiangolo.com)
 - [React Documentation](https://react.dev)
 
 ---
 
 **DJZ-VibeVoice** - Standalone voice synthesis made simple 🎙️✨
+
+*From developers, for developers - evolving towards universal accessibility*
