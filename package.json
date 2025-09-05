@@ -1,0 +1,39 @@
+{
+  "name": "djz-vibevoice",
+  "version": "1.0.0",
+  "description": "Standalone AI-powered voice synthesis application",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && python main.py",
+    "build": "cd frontend && npm run build",
+    "install:all": "npm install && cd frontend && npm install",
+    "clean": "cd frontend && rm -rf node_modules dist && cd ../backend && rm -rf __pycache__ .venv"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/djz-vibevoice.git"
+  },
+  "keywords": [
+    "voice-synthesis",
+    "ai",
+    "tts",
+    "react",
+    "fastapi",
+    "vibevoice"
+  ],
+  "author": "DJZ-VibeVoice Team",
+  "license": "MIT"
+}
