@@ -14,8 +14,17 @@ const initialState = {
   generationSettings: {
     cfgScale: 1.3,
     numSpeakers: 1,
-    outputFormat: 'wav'
-  }
+    outputFormat: 'wav',
+    enableMultiSpeaker: false
+  },
+  // Multi-Speaker State
+  speakerAssignments: {
+    1: null,  // voice_id or null
+    2: null,
+    3: null,
+    4: null
+  },
+  multiSpeakerMode: false
 };
 
 function appReducer(state, action) {
@@ -77,6 +86,53 @@ function appReducer(state, action) {
           ...state.generationSettings, 
           ...action.payload 
         } 
+      };
+    
+    // Multi-Speaker Actions
+    case 'SET_SPEAKER_ASSIGNMENT':
+      return {
+        ...state,
+        speakerAssignments: {
+          ...state.speakerAssignments,
+          [action.payload.speakerId]: action.payload.voiceId
+        }
+      };
+
+    case 'CLEAR_SPEAKER_ASSIGNMENT':
+      return {
+        ...state,
+        speakerAssignments: {
+          ...state.speakerAssignments,
+          [action.payload.speakerId]: null
+        }
+      };
+
+    case 'TOGGLE_MULTI_SPEAKER_MODE':
+      return {
+        ...state,
+        multiSpeakerMode: action.payload,
+        generationSettings: {
+          ...state.generationSettings,
+          enableMultiSpeaker: action.payload
+        }
+      };
+
+    case 'CLEAR_ALL_SPEAKER_ASSIGNMENTS':
+      return {
+        ...state,
+        speakerAssignments: { 1: null, 2: null, 3: null, 4: null }
+      };
+
+    case 'SET_SPEAKER_ASSIGNMENTS':
+      return {
+        ...state,
+        speakerAssignments: { 
+          1: null, 
+          2: null, 
+          3: null, 
+          4: null,
+          ...action.payload 
+        }
       };
     
     default:

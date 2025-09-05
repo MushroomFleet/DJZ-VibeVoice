@@ -141,6 +141,92 @@ class VoiceService {
     const response = await api.get('/health');
     return response.data;
   }
+
+  // Multi-Speaker Methods
+
+  async assignVoiceToSpeaker(speakerId, voiceId) {
+    return this.withRetry(async () => {
+      const response = await api.post(`/voices/assign-speaker/${speakerId}`, { 
+        voice_id: voiceId 
+      });
+      return response.data;
+    });
+  }
+
+  async getSpeakerAssignments() {
+    return this.withRetry(async () => {
+      const response = await api.get('/voices/speaker-assignments');
+      return response.data;
+    });
+  }
+
+  async clearSpeakerAssignment(speakerId) {
+    return this.withRetry(async () => {
+      const response = await api.delete(`/voices/speaker-assignments/${speakerId}`);
+      return response.data;
+    });
+  }
+
+  async clearAllSpeakerAssignments() {
+    return this.withRetry(async () => {
+      const response = await api.delete('/voices/speaker-assignments');
+      return response.data;
+    });
+  }
+
+  async generateMultiSpeakerSpeech({ text, speaker_assignments, cfg_scale = 1.3 }) {
+    // Don't use retry logic for speech generation as it can take a long time
+    const backendReady = await this.waitForBackend();
+    if (!backendReady) {
+      throw new Error('Backend is not ready. Please wait a moment and try again.');
+    }
+    
+    try {
+      const response = await api.post('/voices/generate-multi-speaker', {
+        text,
+        speaker_assignments,
+        cfg_scale
+      }, {
+        timeout: 120000, // 2 minutes timeout for CPU generation
+      });
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          audio_url: response.data.audio_url,
+          duration: response.data.duration,
+          referenced_speakers: response.data.referenced_speakers,
+          message: response.data.message
+        };
+      } else {
+        throw new Error(response.data.message || 'Multi-speaker generation failed');
+      }
+    } catch (error) {
+      console.error('Multi-speaker generation error:', error);
+      throw error;
+    }
+  }
+
+  // Helper method to extract referenced speakers from text
+  extractReferencedSpeakers(text) {
+    const matches = text.match(/\[([1-4])\]/g);
+    if (!matches) return [];
+    return [...new Set(matches.map(match => parseInt(match.slice(1, -1))))];
+  }
+
+  // Helper method to validate speaker assignments
+  validateSpeakerAssignments(text, speakerAssignments) {
+    const referencedSpeakers = this.extractReferencedSpeakers(text);
+    const missingAssignments = referencedSpeakers.filter(
+      speakerId => !speakerAssignments[speakerId]
+    );
+    
+    return {
+      isValid: missingAssignments.length === 0,
+      referencedSpeakers,
+      missingAssignments
+    };
+  }
 }
 
 export const voiceService = new VoiceService();

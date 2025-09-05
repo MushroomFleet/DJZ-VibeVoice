@@ -1,0 +1,235 @@
+.voiceAssignment {
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--background-secondary);
+  margin-bottom: 1rem;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.header h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.header p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.speakerGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.speakerSlot {
+  padding: 1rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  background: var(--background-primary);
+  border: 2px solid transparent;
+}
+
+.speakerSlot.assigned {
+  background: var(--success-light, #e8f5e8);
+  border: 2px solid var(--success-color, #28a745);
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+}
+
+.speakerSlot.unassigned {
+  background: var(--background-primary);
+  border: 2px dashed var(--border-color);
+}
+
+.speakerSlot:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.speakerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.speakerId {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.markerSyntax {
+  background: var(--primary-color);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.voiceInfo {
+  margin-bottom: 1rem;
+  min-height: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.voiceName {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.speakerSlot.assigned .voiceName {
+  color: var(--success-color, #28a745);
+  font-weight: 500;
+  font-style: normal;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.assignButton {
+  flex: 1;
+  min-width: 80px;
+  font-size: 0.85rem;
+}
+
+.clearButton {
+  flex: 0 0 auto;
+  font-size: 0.85rem;
+}
+
+.footer {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: 1rem;
+}
+
+.clearAllButton {
+  min-width: 150px;
+  gap: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.helpText {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--info-light, #e3f2fd);
+  border: 1px solid var(--info-color, #2196f3);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.helpText p {
+  margin: 0 0 0.75rem 0;
+}
+
+.helpText p:last-child {
+  margin-bottom: 0;
+}
+
+.helpText code {
+  background: var(--background-primary);
+  padding: 0.15rem 0.3rem;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.helpText strong {
+  color: var(--text-primary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .speakerGrid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .voiceAssignment {
+    padding: 1rem;
+  }
+  
+  .helpText {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .speakerGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .assignButton {
+    min-width: unset;
+  }
+}
+
+/* Animation for assignment changes */
+.speakerSlot.assigned {
+  animation: assignmentSuccess 0.3s ease-out;
+}
+
+@keyframes assignmentSuccess {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+  }
+}
+
+/* Focus styles for accessibility */
+.assignButton:focus,
+.clearButton:focus,
+.clearAllButton:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Dark mode support (if implemented) */
+@media (prefers-color-scheme: dark) {
+  .helpText {
+    background: rgba(33, 150, 243, 0.1);
+  }
+  
+  .markerSyntax {
+    background: var(--primary-color-dark, #1976d2);
+  }
+}
