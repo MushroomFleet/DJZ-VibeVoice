@@ -68,214 +68,119 @@ We've completely rebuilt the application as a **modern web-based monorepo** with
 - **📈 Real-time Monitoring**: Performance metrics and optimization status
 - **⚙️ Intelligent Configuration**: Automatic optimization selection
 
-## 🚀 Installation & Setup
+## 🚀 Quick Start (For Users)
 
 ### System Requirements
+- **Node.js** 18+ and **Python** 3.9+
+- **8GB+ RAM** (16GB+ recommended)
+- **NVIDIA GPU with 8GB+ VRAM** (for optimal performance)
+- **5GB+ disk space**
 
-#### Minimum (CPU Mode)
-- **Node.js** 18+ (for frontend)
-- **Python** 3.9+ (for backend) 
-- **8GB+ RAM**
-- **5GB disk space**
-- **Expected Performance**: 60-120 seconds per generation
+**Performance Expectations:**
+- **CPU Mode**: 60-120 seconds per generation
+- **GPU Mode**: 10-20 seconds per generation  
+- **🚀 RTX 4090/4080+ with v1.2.0**: **3-8 seconds per generation**
 
-#### Recommended (Basic CUDA)
-- **Node.js** 20+, **Python** 3.10+
-- **NVIDIA GPU** with 8GB+ VRAM
-- **16GB RAM**, **SSD storage**
-- **Expected Performance**: 10-20 seconds per generation
+### Installation
 
-#### 🚀 **High Performance (v1.2.0 Advanced)**
-- **NVIDIA RTX 4090/4080+** (24GB+ VRAM recommended)
-- **32GB+ System RAM**
-- **CUDA Toolkit 12.4+**
-- **NVMe SSD** for optimal I/O
-- **Expected Performance**: **3-8 seconds per generation**
-
-### Step-by-Step Installation
-
-#### 1. Clone the Repository
+#### 1. Clone and Install
 ```bash
 git clone https://github.com/MushroomFleet/DJZ-VibeVoice.git
 cd DJZ-VibeVoice
+npm install
 ```
 
-#### 2. Install Node.js Dependencies
-```bash
-npm install
-cd frontend
-npm install
-cd ..
-```
-
-#### 3. Set Up Python Backend Environment
+#### 2. Set Up Python Environment
 ```bash
 cd backend
 python -m venv venv
 
 # Activate virtual environment:
-# On Windows:
+# Windows:
 venv\Scripts\activate
-# On macOS/Linux:
+# macOS/Linux:
 source venv/bin/activate
+
+# Install dependencies (choose based on your hardware):
+pip install -r requirements.txt                    # CPU mode
+pip install -r requirements-cuda.txt               # GPU mode
+pip install -r requirements-cuda-advanced.txt      # High-performance RTX 4090+
 ```
 
-#### 4. Install Dependencies Based on Your Setup
-
-**For CPU Mode (Basic):**
-```bash
-pip install -r requirements.txt
-```
-
-**For Basic CUDA Acceleration:**
-```bash
-pip install -r requirements-cuda.txt
-```
-
-**🚀 For Advanced CUDA Optimizations (v1.2.0):**
-```bash
-# Install advanced dependencies
-pip install -r requirements-cuda-advanced.txt
-
-# Additional high-performance packages
-pip install cupy-cuda12x  # GPU-accelerated arrays
-pip install ffmpeg-python  # Hardware acceleration
-pip install nvidia-ml-py3  # GPU monitoring
-
-# Set environment for OpenMP compatibility
-set KMP_DUPLICATE_LIB_OK=TRUE  # Windows
-export KMP_DUPLICATE_LIB_OK=TRUE  # Linux/macOS
-```
-
-#### 5. Install VibeVoice Model
+#### 3. Install AI Model
 ```bash
 cd models/VibeVoice
 pip install -e .
 cd ../..
 ```
 
-#### 6. Configure Backend Environment
+#### 4. Configure Settings
 ```bash
 cd backend
 cp env.example .env
+# Edit .env file if needed for your hardware setup
 ```
 
-**Edit `backend/.env` for your performance level:**
-
-**CPU Configuration:**
-```env
-DEVICE=cpu
-ENABLE_CUDA_OPTIMIZATIONS=false
-```
-
-**Basic CUDA Configuration:**
-```env
-DEVICE=cuda
-ENABLE_CUDA_OPTIMIZATIONS=false
-CUDA_MEMORY_FRACTION=0.8
-```
-
-**🚀 Advanced CUDA Configuration (v1.2.0):**
-```env
-DEVICE=cuda
-ENABLE_CUDA_OPTIMIZATIONS=true
-ENABLE_VECTORIZED_AUDIO=true
-ENABLE_FFMPEG_ACCELERATION=true
-ENABLE_CUSTOM_KERNELS=true
-ENABLE_STREAMING_PIPELINE=true
-MEMORY_STRATEGY=adaptive
-CUDA_MEMORY_FRACTION=0.95
-BATCH_SIZE=8
-MAX_CONCURRENT_GENERATIONS=4
-```
-
-#### 7. Start the Application
-
-**Standard Mode:**
+#### 5. Start Application
 ```bash
-npm run dev
+# Production mode (recommended for users)
+npm run start
+
+# The application will be available at: http://localhost:8001
 ```
 
-**🚀 High-Performance Mode (v1.2.0):**
-```bash
-# Windows
-set KMP_DUPLICATE_LIB_OK=TRUE && npm run dev
+**First startup may take 30-60 seconds to load the AI model.**
 
-# Linux/macOS  
-export KMP_DUPLICATE_LIB_OK=TRUE && npm run dev
-```
+### How to Use
 
-**Expected startup for v1.2.0 Advanced:**
-```
-✅ GPU detected: NVIDIA GeForce RTX 4090 (25.8GB)
-✅ Advanced CUDA optimizations loaded successfully  
-✅ Memory monitoring started (strategy: adaptive)
-✅ Vectorized audio: True
-✅ FFmpeg acceleration: True
-✅ Custom kernels: True
-✅ Hardware encoders: ['nvenc', 'qsv']
-```
-
-The application will be available at:
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8001
-- **Performance Dashboard**: http://localhost:8001/api/performance/status
-
-## 🎯 How to Use
-
-### Quick Start Guide
-
-1. **Access the Application**
-   - Open http://localhost:5173
-   - Wait for backend initialization (30-60 seconds first time)
-   - **v1.2.0**: Check optimization status in browser console
-
-2. **Create Your First Voice Profile**
-   - Click the microphone icon to record 10-30 seconds of clear speech
-   - Or upload audio file (.wav, .mp3, .m4a, .flac, .ogg)
-   - Give your voice a descriptive name and save
-
-3. **Generate Speech**
+1. **Open the application** at http://localhost:8001
+2. **Create a voice profile**:
+   - Click the microphone to record 10-30 seconds of clear speech
+   - Or upload an audio file (.wav, .mp3, .m4a, .flac, .ogg)
+   - Give your voice a name and save
+3. **Generate speech**:
    - Select your voice from the dropdown
    - Enter text in the input area
-   - **CPU Mode**: Wait 60-120 seconds
-   - **Basic CUDA**: Wait 10-20 seconds  
-   - **🚀 v1.2.0 Advanced**: **3-8 seconds!**
+   - Click generate and wait for your audio
+4. **Manage audio files** in the Audio Gallery section
 
-4. **Monitor Performance (v1.2.0)**
-   - View real-time GPU utilization
-   - Check optimization status: `GET /api/performance/status`
-   - Monitor memory usage and throughput
+### Troubleshooting
 
-### 🚀 Advanced Usage (v1.2.0)
+**If the application doesn't start:**
+```bash
+# Check if ports are in use
+netstat -ano | findstr :8001    # Windows
+lsof -ti:8001                   # macOS/Linux
 
-#### High-Performance Batch Processing
-```python
-# Generate multiple speeches efficiently
-from app.services.voice_service import VoiceService
-
-voice_service = VoiceService()
-texts = ["Text 1", "Text 2", "Text 3", "Text 4"]
-voice_ids = ["voice1", "voice2", "voice1", "voice2"]
-
-# Optimized batch processing (3-8x faster)
-results = voice_service.generate_speech_batch_optimized(
-    texts, voice_ids, cfg_scale=1.3
-)
+# Clean install
+npm run clean
+npm install
+npm run start
 ```
 
-#### Memory-Optimized Workflows
-```python
-from app.utils.tensor_pools import ContextualTensorManager, tensor_pool_manager
+**For CUDA/GPU issues:**
+- Ensure NVIDIA drivers are up to date
+- Check `nvidia-smi` shows your GPU
+- Set `KMP_DUPLICATE_LIB_OK=TRUE` environment variable
 
-# Automatic memory management
-with ContextualTensorManager(tensor_pool_manager) as tm:
-    temp_tensor = tm.get_tensor((1024, 256))
-    # Process with 30-50% memory reduction
-    # Tensors automatically returned to pool
+## 🎯 Advanced Features
+
+### Multi-Speaker Conversations
+Create natural dialogues with multiple speakers:
+```text
+Speaker 1: Hello, welcome to our podcast!
+Speaker 2: Thanks, I'm excited to be here.
+Speaker 1: Let's dive into today's topic.
 ```
 
-#### Real-time Performance Monitoring
+### Voice Cloning Best Practices
+- **Audio Quality**: Use 10-30 seconds of clear, high-quality audio
+- **Environment**: Record in quiet environment with consistent microphone distance
+- **Natural Speech**: Speak naturally with varied intonation
+- **Multiple Samples**: Upload multiple recordings for better voice quality
+
+### Performance Monitoring (v1.2.0)
+Monitor system performance in real-time:
 ```bash
 # Check optimization status
 curl http://localhost:8001/api/performance/status
@@ -290,27 +195,6 @@ curl http://localhost:8001/api/performance/status
   "expected_speedup": "15-40x"
 }
 ```
-
-### Advanced Features
-
-**Multi-Speaker Conversations**
-```text
-Speaker 1: Hello, welcome to our podcast!
-Speaker 2: Thanks, I'm excited to be here.
-Speaker 1: Let's dive into today's topic.
-```
-
-**Voice Cloning Best Practices**
-- Use 10-30 seconds of clear, high-quality audio
-- Record in quiet environment with consistent microphone distance
-- Speak naturally with varied intonation  
-- **v1.2.0**: Use batch processing for multiple voice profiles
-
-**🚀 Performance Optimization Tips (v1.2.0)**
-- **Single Generation**: Use standard mode for one-off requests
-- **Batch Generation**: Enable batch processing for multiple requests
-- **Memory Management**: Monitor GPU memory via performance dashboard
-- **Hardware Acceleration**: Ensure NVENC is active for maximum I/O speed
 
 ## 📊 CUDA Optimization Details
 
@@ -406,31 +290,77 @@ Backend/
 └── requirements-cuda-advanced.txt # High-performance dependencies
 ```
 
-## 🛠️ Development
+---
 
-### Available Scripts
+# 👨‍💻 For Developers
+
+## Development Setup
+
+### Development vs Production Modes
+
+**Development Mode (`npm run dev`):**
+- **Frontend**: Vite dev server on http://localhost:5173
+- **Backend**: FastAPI with hot reload on http://localhost:8001  
+- **Proxy**: Frontend proxies `/api` requests to backend
+- **Use for**: Active development with hot reload
+
+**Production Mode (`npm run start`):**
+- **Unified**: Backend serves built frontend on http://localhost:8001
+- **Static**: Optimized frontend build served by FastAPI
+- **Use for**: Production deployment, testing builds
+
+### Development Scripts
 
 ```bash
-# Development
+# Development (two-server setup)
 npm run dev                 # Run both frontend and backend
-npm run dev:frontend        # Run React dev server only
-npm run dev:backend         # Run FastAPI server only
+npm run dev:frontend        # Run React dev server only (port 5173)
+npm run dev:backend         # Run FastAPI server only (port 8001)
 
 # High-Performance Development (v1.2.0)
 set KMP_DUPLICATE_LIB_OK=TRUE && npm run dev  # Windows optimized
 export KMP_DUPLICATE_LIB_OK=TRUE && npm run dev  # Linux/macOS optimized
 
+# Production
+npm run start              # Build + start production server (port 8001)
+npm run build              # Build frontend for production
+npm run start:production   # Start production server only
+
 # Performance Testing
 npm run test:performance    # Run optimization validation
 npm run benchmark          # Full performance benchmarking
 
-# Building
-npm run build              # Build frontend for production
-npm run build:optimized    # Build with CUDA optimizations
-
 # Maintenance
 npm run install:all        # Install all dependencies
 npm run clean             # Clean build artifacts
+```
+
+### Advanced Development Setup
+
+**🚀 For CUDA Development (v1.2.0):**
+```bash
+cd backend
+
+# Install advanced dependencies
+pip install -r requirements-cuda-advanced.txt
+
+# Additional high-performance packages
+pip install cupy-cuda12x  # GPU-accelerated arrays
+pip install ffmpeg-python  # Hardware acceleration
+pip install nvidia-ml-py3  # GPU monitoring
+
+# Advanced CUDA Configuration
+# Edit backend/.env:
+DEVICE=cuda
+ENABLE_CUDA_OPTIMIZATIONS=true
+ENABLE_VECTORIZED_AUDIO=true
+ENABLE_FFMPEG_ACCELERATION=true
+ENABLE_CUSTOM_KERNELS=true
+ENABLE_STREAMING_PIPELINE=true
+MEMORY_STRATEGY=adaptive
+CUDA_MEMORY_FRACTION=0.95
+BATCH_SIZE=8
+MAX_CONCURRENT_GENERATIONS=4
 ```
 
 ### 🚀 Performance Testing & Validation
@@ -447,6 +377,8 @@ python scripts/test_advanced_optimizations.py
 ✅ Tensor Pools: 14 pools active
 ✅ 7/9 optimization tests passing - PRODUCTION READY
 ```
+
+## API Development
 
 ### API Endpoints
 
@@ -470,6 +402,40 @@ python scripts/test_advanced_optimizations.py
 - `GET /api/audio/library` — Get audio library with metadata
 - `GET /api/audio/{filename}` — Download audio file
 - `DELETE /api/audio/{filename}` — Delete audio file
+
+### Advanced Development (v1.2.0)
+
+#### High-Performance Batch Processing
+```python
+# Generate multiple speeches efficiently
+from app.services.voice_service import VoiceService
+
+voice_service = VoiceService()
+texts = ["Text 1", "Text 2", "Text 3", "Text 4"]
+voice_ids = ["voice1", "voice2", "voice1", "voice2"]
+
+# Optimized batch processing (3-8x faster)
+results = voice_service.generate_speech_batch_optimized(
+    texts, voice_ids, cfg_scale=1.3
+)
+```
+
+#### Memory-Optimized Workflows
+```python
+from app.utils.tensor_pools import ContextualTensorManager, tensor_pool_manager
+
+# Automatic memory management
+with ContextualTensorManager(tensor_pool_manager) as tm:
+    temp_tensor = tm.get_tensor((1024, 256))
+    # Process with 30-50% memory reduction
+    # Tensors automatically returned to pool
+```
+
+#### Performance Optimization Tips (v1.2.0)
+- **Single Generation**: Use standard mode for one-off requests
+- **Batch Generation**: Enable batch processing for multiple requests
+- **Memory Management**: Monitor GPU memory via performance dashboard
+- **Hardware Acceleration**: Ensure NVENC is active for maximum I/O speed
 
 ## 🐛 Troubleshooting
 

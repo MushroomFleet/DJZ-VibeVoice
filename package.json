@@ -12,6 +12,8 @@
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && python main.py",
     "build": "cd frontend && npm run build",
+    "start": "npm run build && npm run start:production",
+    "start:production": "cd backend && python main.py --production",
     "install:all": "npm install && cd frontend && npm install",
     "clean": "cd frontend && rm -rf node_modules dist && cd ../backend && rm -rf __pycache__ .venv"
   },
