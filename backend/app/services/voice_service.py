@@ -10,6 +10,9 @@ import torch
 from app.config import settings
 from app.models import VoiceProfile, VoiceType
 from app.utils.cuda_utils import cuda_manager
+from app.utils.tensor_pools import tensor_pool_manager, ContextualTensorManager
+from app.utils.vectorized_audio import vectorized_processor
+from app.utils.memory_optimizer import adaptive_memory_manager
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +93,11 @@ class VoiceService:
         self.multi_speaker_session = MultiSpeakerSession(self)
         self._initialize_model()
         self._load_voices()
+        
+        # Register memory optimization callback
+        adaptive_memory_manager.register_optimization_callback(
+            self._handle_memory_optimization
+        )
 
     def _initialize_model(self):
         """Initialize the VibeVoice model with optimized CUDA settings."""
@@ -125,9 +133,19 @@ class VoiceService:
             
             # Load processor with fallback handling
             try:
-                self.processor = VibeVoiceProcessor.from_pretrained(settings.MODEL_PATH)
+                # Use proper HuggingFace resolution to avoid preprocessor_config.json warning
+                from huggingface_hub import snapshot_download
+                resolved_model_path = snapshot_download(settings.MODEL_PATH)
+                logger.info(f"Resolved model path: {resolved_model_path}")
+                self.processor = VibeVoiceProcessor.from_pretrained(resolved_model_path)
             except Exception as proc_error:
                 logger.warning(f"Failed to load processor from {settings.MODEL_PATH}: {proc_error}")
+                logger.info("Attempting fallback with original model path...")
+                try:
+                    self.processor = VibeVoiceProcessor.from_pretrained(settings.MODEL_PATH)
+                except Exception as fallback_error:
+                    logger.error(f"Fallback also failed: {fallback_error}")
+                    raise proc_error
                 logger.info("Creating processor with default configuration...")
                 # Create processor with default settings if config is missing
                 from vibevoice.processor.vibevoice_tokenizer_processor import VibeVoiceTokenizerProcessor
@@ -231,8 +249,128 @@ class VoiceService:
         voice_id: str,
         num_speakers: int = 1,
         cfg_scale: float = 1.3,
+        use_optimizations: Optional[bool] = None,
     ) -> Optional[np.ndarray]:
-        """Generate speech with CUDA optimizations."""
+        """
+        Generate speech with configurable optimizations.
+        
+        Args:
+            text: Text to synthesize
+            voice_id: Voice profile ID to use
+            num_speakers: Number of speakers (for multi-speaker mode)
+            cfg_scale: Classifier-free guidance scale
+            use_optimizations: If True, use optimized generation; If False, use original behavior;
+                             If None, use AUTO_USE_OPTIMIZATIONS setting
+        
+        Returns:
+            Generated audio array or None if failed
+        """
+        # Determine optimization usage
+        if use_optimizations is None:
+            use_optimizations = settings.AUTO_USE_OPTIMIZATIONS
+        
+        # Route to appropriate generation method
+        if settings.PRESERVE_ORIGINAL_BEHAVIOR and not use_optimizations:
+            return self._generate_speech_original(text, voice_id, num_speakers, cfg_scale)
+        else:
+            return self._generate_speech_optimized(text, voice_id, num_speakers, cfg_scale)
+
+    def _generate_speech_original(
+        self,
+        text: str,
+        voice_id: str,
+        num_speakers: int = 1,
+        cfg_scale: float = 1.3,
+    ) -> Optional[np.ndarray]:
+        """Generate speech using original VibeVoice behavior (no forced parameters)."""
+        try:
+            # Validate voice
+            voice_profile = self.voices_cache.get(voice_id)
+            if not voice_profile:
+                raise ValueError(f"Voice profile {voice_id} not found")
+
+            # If model unavailable, return placeholder audio
+            if not (self.model_loaded and self.model and self.processor):
+                logger.warning("Model not loaded — returning sample placeholder audio.")
+                return self._generate_sample_audio(text)
+
+            logger.info(f"Generating speech (ORIGINAL mode) with voice: {voice_profile.name}")
+            logger.info(f"Voice file path: {voice_profile.file_path}")
+            
+            # Verify voice file exists and is accessible
+            if not os.path.exists(voice_profile.file_path):
+                logger.error(f"Voice file not found: {voice_profile.file_path}")
+                return self._generate_sample_audio(text)
+            
+            # Format text for multi-speaker scenarios
+            formatted_text = self._format_text_for_speakers(text, num_speakers)
+            logger.info(f"Formatted text: {formatted_text}")
+
+            # Prepare inputs with minimal processing (original behavior)
+            logger.info("Processing voice samples through VibeVoiceProcessor...")
+            try:
+                inputs = self.processor(
+                    text=[formatted_text],
+                    voice_samples=[[voice_profile.file_path]],
+                    padding=True,
+                    return_tensors="pt",
+                    return_attention_mask=True,
+                )
+            except Exception as proc_error:
+                logger.error(f"Voice processor failed: {proc_error}")
+                return self._generate_sample_audio(text)
+
+            # Move inputs to device efficiently
+            device = cuda_manager.device
+            for k, v in list(inputs.items()):
+                if isinstance(v, torch.Tensor):
+                    inputs[k] = v.to(device, non_blocking=True)
+
+            logger.info(f"Starting ORIGINAL generation with cfg_scale={cfg_scale}")
+
+            # Original VibeVoice generation (no forced parameters)
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=None,
+                cfg_scale=cfg_scale,  # Use user's exact cfg_scale
+                tokenizer=self.processor.tokenizer,
+                # NO generation_config - use model defaults
+                verbose=False,
+            )
+
+            # Extract and process audio
+            if (
+                getattr(outputs, "speech_outputs", None)
+                and outputs.speech_outputs[0] is not None
+            ):
+                audio_tensor = outputs.speech_outputs[0]
+
+                # Cast to float32 for NumPy compatibility
+                if audio_tensor.dtype != torch.float32:
+                    audio_tensor = audio_tensor.to(torch.float32)
+
+                # Move to CPU and convert to NumPy
+                audio_array = audio_tensor.detach().cpu().numpy()
+                audio_array = np.clip(audio_array, -1.0, 1.0)
+
+                logger.info("Original generation completed successfully")
+                return audio_array
+
+            logger.error("No speech output generated by the model.")
+            return None
+
+        except Exception as e:
+            logger.error(f"Original speech generation error: {e}", exc_info=True)
+            return self._generate_sample_audio(text)
+
+    def _generate_speech_optimized(
+        self,
+        text: str,
+        voice_id: str,
+        num_speakers: int = 1,
+        cfg_scale: float = 1.3,
+    ) -> Optional[np.ndarray]:
+        """Generate speech using optimized CUDA behavior with all enhancements."""
         try:
             # Validate voice
             voice_profile = self.voices_cache.get(voice_id)
@@ -247,7 +385,7 @@ class VoiceService:
             # Manage memory before generation
             self._manage_memory_for_generation()
 
-            logger.info(f"Generating speech with voice: {voice_profile.name}")
+            logger.info(f"Generating speech (OPTIMIZED mode) with voice: {voice_profile.name}")
             logger.info(f"Voice file path: {voice_profile.file_path}")
             
             # Verify voice file exists and is accessible
@@ -309,18 +447,24 @@ class VoiceService:
                         inputs[k] = v.to(model_dtype)
                         logger.debug(f"Converted input {k} from {v.dtype} to {model_dtype}")
 
-            # Enhance voice conditioning with optimized generation parameters
-            generation_config = {
-                "do_sample": True,  # Enable sampling for better voice diversity
-                "temperature": 0.8,  # Add some variation
-                "top_p": 0.9,  # Use nucleus sampling
-                "repetition_penalty": 1.1,  # Reduce repetition
-            }
+            # Configure generation parameters based on settings
+            generation_config = None  # Use model defaults by default
+            if settings.ENABLE_CUSTOM_GENERATION_CONFIG:
+                generation_config = {
+                    "do_sample": settings.GENERATION_DO_SAMPLE,
+                    "temperature": settings.GENERATION_TEMPERATURE,
+                    "top_p": settings.GENERATION_TOP_P,
+                    "repetition_penalty": settings.GENERATION_REPETITION_PENALTY,
+                }
+                logger.info(f"Using custom generation config: {generation_config}")
             
-            # Use higher cfg_scale for stronger voice conditioning
-            effective_cfg_scale = max(cfg_scale, 1.5)  # Minimum 1.5 for voice cloning
-            
-            logger.info(f"Generating with enhanced voice conditioning (cfg_scale={effective_cfg_scale})")
+            # Respect user's cfg_scale choice unless override is enabled
+            if settings.ENABLE_CFG_OVERRIDE:
+                effective_cfg_scale = max(cfg_scale, 1.5)  # Minimum 1.5 for voice cloning
+                logger.info(f"CFG override enabled: using cfg_scale={effective_cfg_scale}")
+            else:
+                effective_cfg_scale = cfg_scale
+                logger.info(f"Using user-specified cfg_scale: {effective_cfg_scale}")
             
             # Generate with memory-efficient settings using updated autocast API
             with torch.amp.autocast('cuda', enabled=device.startswith("cuda"), dtype=model_dtype):
@@ -349,13 +493,14 @@ class VoiceService:
                 audio_array = audio_tensor.detach().cpu().numpy()
                 audio_array = np.clip(audio_array, -1.0, 1.0)
 
+                logger.info("Optimized generation completed successfully")
                 return audio_array
 
             logger.error("No speech output generated by the model.")
             return None
 
         except Exception as e:
-            logger.error(f"Speech generation error: {e}", exc_info=True)
+            logger.error(f"Optimized speech generation error: {e}", exc_info=True)
             # Clear memory on error
             cuda_manager.clear_memory()
             return self._generate_sample_audio(text)
@@ -666,3 +811,134 @@ class VoiceService:
         """Clear all speaker assignments."""
         self.multi_speaker_session.assignments.clear()
         return True
+
+    # Advanced Batch Processing Methods (Phase 2 Optimizations)
+
+    def _handle_memory_optimization(self, level: str, profile):
+        """Handle memory optimization events."""
+        if level == "critical":
+            # Clear voice cache
+            self.voices_cache.clear()
+            logger.warning("Voice cache cleared due to memory pressure")
+        elif level == "warning":
+            # Clear model cache
+            if hasattr(self.model, 'clear_cache'):
+                self.model.clear_cache()
+
+    def generate_speech_batch_optimized(
+        self,
+        texts: List[str],
+        voice_ids: List[str],
+        cfg_scale: float = 1.3,
+    ) -> List[Optional[np.ndarray]]:
+        """Generate speech for multiple requests using vectorized processing."""
+        try:
+            if not (self.model_loaded and self.model and self.processor):
+                logger.warning("Model not loaded — returning sample placeholder audio.")
+                return [self._generate_sample_audio(text) for text in texts]
+
+            # Validate voices and collect paths
+            voice_paths = []
+            valid_requests = []
+            
+            for i, (text, voice_id) in enumerate(zip(texts, voice_ids)):
+                voice_profile = self.voices_cache.get(voice_id)
+                if voice_profile and os.path.exists(voice_profile.file_path):
+                    voice_paths.append(voice_profile.file_path)
+                    valid_requests.append(i)
+                else:
+                    logger.warning(f"Invalid voice for request {i}: {voice_id}")
+
+            if not voice_paths:
+                return [self._generate_sample_audio(text) for text in texts]
+
+            # Load voice samples in batch using vectorized processor
+            logger.info(f"Loading {len(voice_paths)} voice samples in batch...")
+            voice_batch, voice_lengths = vectorized_processor.load_audio_batch(voice_paths)
+            
+            # Extract voice features in batch
+            voice_features = vectorized_processor.extract_voice_features_batch(
+                voice_batch, voice_lengths
+            )
+            
+            # Use tensor pools for memory efficiency
+            with ContextualTensorManager(tensor_pool_manager) as tm:
+                # Convert to PyTorch tensors using tensor pools
+                device = cuda_manager.device
+                voice_tensors = []
+                for i in range(len(voice_paths)):
+                    # Use pre-computed features instead of raw audio
+                    feature_tensor = vectorized_processor.to_torch_tensor(
+                        voice_features['mel_spectrogram'][i], device
+                    )
+                    voice_tensors.append(feature_tensor)
+
+                # Batch process texts
+                valid_texts = [texts[i] for i in valid_requests]
+                
+                # Use processor with enhanced batch processing
+                inputs = self.processor(
+                    text=valid_texts,
+                    voice_samples=[[path] for path in voice_paths],  # Fallback for now
+                    padding=True,
+                    return_tensors="pt",
+                    return_attention_mask=True,
+                )
+
+                # Move to device and ensure dtype consistency
+                model_dtype = cuda_manager.dtype
+                for k, v in list(inputs.items()):
+                    if isinstance(v, torch.Tensor):
+                        inputs[k] = v.to(device, non_blocking=True)
+                        if v.dtype.is_floating_point and v.dtype != model_dtype:
+                            inputs[k] = inputs[k].to(model_dtype)
+
+                # Generate with enhanced voice conditioning
+                with cuda_manager.get_compatible_autocast_context(device):
+                    outputs = self.model.generate(
+                        **inputs,
+                        max_new_tokens=None,
+                        cfg_scale=cfg_scale,
+                        tokenizer=self.processor.tokenizer,
+                        generation_config={
+                            "do_sample": True,
+                            "temperature": 0.8,
+                            "top_p": 0.9,
+                            "use_cache": True,
+                        },
+                        verbose=False,
+                    )
+
+                # Extract audio outputs
+                results = [None] * len(texts)
+                
+                for i, request_idx in enumerate(valid_requests):
+                    if (hasattr(outputs, 'speech_outputs') and 
+                        i < len(outputs.speech_outputs) and 
+                        outputs.speech_outputs[i] is not None):
+                        
+                        audio_tensor = outputs.speech_outputs[i]
+                        if audio_tensor.dtype != torch.float32:
+                            audio_tensor = audio_tensor.to(torch.float32)
+                        
+                        audio_array = audio_tensor.detach().cpu().numpy()
+                        results[request_idx] = np.clip(audio_array, -1.0, 1.0)
+                    else:
+                        results[request_idx] = self._generate_sample_audio(texts[request_idx])
+
+                # Fill invalid requests with placeholder
+                for i in range(len(texts)):
+                    if results[i] is None:
+                        results[i] = self._generate_sample_audio(texts[i])
+
+                return results
+
+        except Exception as e:
+            logger.error(f"Batch generation error: {e}", exc_info=True)
+            return [self._generate_sample_audio(text) for text in texts]
+
+    def generate_speech_optimized(self, text: str, voice_id: str, cfg_scale: float = 1.3) -> Optional[np.ndarray]:
+        """Optimized speech generation with memory management."""
+        with ContextualTensorManager(tensor_pool_manager) as tm:
+            # Use tensor pools for temporary allocations
+            return self.generate_speech(text, voice_id, cfg_scale=cfg_scale)
