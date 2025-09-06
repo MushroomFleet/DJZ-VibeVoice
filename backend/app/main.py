@@ -2,7 +2,9 @@
 
 import logging
 import asyncio
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -108,14 +110,48 @@ app.add_middleware(
 # Include API routes
 app.include_router(router)
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+# Check for production build
+backend_dir = Path(__file__).parent.parent
+root_dir = backend_dir.parent
+frontend_build_dir = root_dir / "frontend" / "dist"
+is_production_build = frontend_build_dir.exists() and (frontend_build_dir / "index.html").exists()
 
+if is_production_build:
+    # Production mode: serve built frontend
+    logger.info("Production mode detected: serving built frontend files")
+    
+    # Mount built frontend assets
+    app.mount("/assets", StaticFiles(directory=str(frontend_build_dir / "assets")), name="assets")
+    
+    # Mount static files for API
+    app.mount("/static", StaticFiles(directory="app/static"), name="static")
+    
+    # Root endpoint
+    @app.get("/")
+    async def root():
+        return FileResponse(str(frontend_build_dir / "index.html"))
+        
+    # Serve the built frontend index.html for all non-API routes (must be last)
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        # If it's an API route, let it pass through
+        if full_path.startswith("api/"):
+            return {"error": "API endpoint not found"}
+        
+        # For all other routes, serve the frontend index.html
+        return FileResponse(str(frontend_build_dir / "index.html"))
+        
+else:
+    # Development mode: serve backend static files only
+    logger.info("Development mode: serving backend static files, frontend should run separately")
+    
+    # Mount static files
+    app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# Root endpoint - serve the main page
-@app.get("/")
-async def root():
-    return FileResponse("app/static/index.html")
+    # Root endpoint - serve the main page  
+    @app.get("/")
+    async def root():
+        return FileResponse("app/static/index.html")
 
 
 # Run the application

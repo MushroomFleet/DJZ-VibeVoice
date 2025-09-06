@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "DJZ-VibeVoice"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
+    PRODUCTION: bool = False  # Set to True for production deployment
 
     # Server settings
     HOST: str = "0.0.0.0"
