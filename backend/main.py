@@ -7,6 +7,7 @@ Main entry point for the FastAPI backend server.
 import sys
 import os
 from pathlib import Path
+import argparse
 
 # Add the models directory to Python path for VibeVoice imports
 backend_dir = Path(__file__).parent
@@ -23,17 +24,36 @@ from app.main import app, settings, logger
 if __name__ == "__main__":
     import uvicorn
     
-    # Update port to avoid conflicts (use 8001 instead of 8000)
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='DJZ-VibeVoice Backend Server')
+    parser.add_argument('--production', action='store_true', help='Run in production mode')
+    args = parser.parse_args()
+    
+    # Configure for production or development
+    is_production = args.production
     port = 8001
     
-    logger.info(f"Starting DJZ-VibeVoice Backend v{settings.APP_VERSION}")
-    logger.info(f"Server running on http://{settings.HOST}:{port}")
-    logger.info(f"Frontend proxy should point to this address")
-    
-    uvicorn.run(
-        "app.main:app",
-        host=settings.HOST,
-        port=port,
-        reload=settings.DEBUG,
-        log_level="info",
-    )
+    if is_production:
+        logger.info(f"Starting DJZ-VibeVoice Backend v{settings.APP_VERSION} in PRODUCTION mode")
+        logger.info(f"Serving frontend from built files")
+        logger.info(f"Server running on http://{settings.HOST}:{port}")
+        
+        uvicorn.run(
+            "app.main:app",
+            host=settings.HOST,
+            port=port,
+            reload=False,  # Disable reload in production
+            log_level="info",
+        )
+    else:
+        logger.info(f"Starting DJZ-VibeVoice Backend v{settings.APP_VERSION} in DEVELOPMENT mode")
+        logger.info(f"Server running on http://{settings.HOST}:{port}")
+        logger.info(f"Frontend proxy should point to this address")
+        
+        uvicorn.run(
+            "app.main:app",
+            host=settings.HOST,
+            port=port,
+            reload=settings.DEBUG,
+            log_level="info",
+        )
